@@ -15,7 +15,7 @@ ETHERSCAN_API_KEY = "972W1N6UZ2IC6MXZJ32G7JJJT4UNMRNP6B"
 ETHERSCAN_BASE_URL = "https://api.etherscan.io/api"
 MAX_BLOCKS = 100
 FETCH_TIMEOUT = 60  # seconds
-GAS_THRESHOLD = 50
+HIGH_GAS_MULTIPLIER = 3
 
 # --- Helpers ---
 def safe_get(url, params=None, timeout=10):
@@ -149,8 +149,11 @@ def run_dashboard():
     if txs.empty:
         return
 
+    median_gas = txs['gasPrice'].median()
+    threshold = median_gas * HIGH_GAS_MULTIPLIER
     st.subheader("📊 1. High-Gas Transactions")
-    high_gas_df = txs[txs['gasPrice'] >= GAS_THRESHOLD].sort_values(by='gasPrice', ascending=False)
+    st.caption(f"Using dynamic threshold: {HIGH_GAS_MULTIPLIER}× median gas ({median_gas:.2f} Gwei) = {threshold:.2f} Gwei")
+    high_gas_df = txs[txs['gasPrice'] >= threshold].sort_values(by='gasPrice', ascending=False)
     st.dataframe(high_gas_df)
 
     st.subheader("🦊 2. Detected Sandwich Attacks")
@@ -188,7 +191,7 @@ def run_dashboard():
                 'mark': 'circle',
                 'encoding': {
                     'x': {'field': 'blockNumber', 'type': 'quantitative', 'title': 'Block'},
-                    'y': {'field': 'gasPrice',    'type': 'quantitative', 'title': 'Gas (Gwei)', 'scale': {'domain': [0, max(clusters['gasPrice'].max(), GAS_THRESHOLD)]}},
+                    'y': {'field': 'gasPrice',    'type': 'quantitative', 'title': 'Gas (Gwei)', 'scale': {'domain': [0, max(clusters['gasPrice'].max(), threshold)]}},
                     'color': {'field': 'cluster', 'type': 'nominal', 'title': 'Cluster'}
                 },
                 'config': {'axis': {'grid': True}}
