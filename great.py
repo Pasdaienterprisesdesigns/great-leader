@@ -12,7 +12,7 @@ import time
 
 # --- Config ---
 ETHERSCAN_API_KEY = "972W1N6UZ2IC6MXZJ32G7JJJT4UNMRNP6B"
-ETHERSCAN_BASE_URL = "https://api.etherscan.io/api"
+ETHERSCAN_BASE_URL = "https://api.etherscan.io/v2/api?chainid=1"
 MAX_BLOCKS = 100
 FETCH_TIMEOUT = 60  # seconds
 HIGH_GAS_MULTIPLIER = 3
